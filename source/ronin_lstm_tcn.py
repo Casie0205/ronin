@@ -210,9 +210,9 @@ def train(args, **kwargs):
             model_data = json.load(f)
 
         if device.type == 'cpu':
-            checkpoints = torch.load(args.continue_from, map_location=lambda storage, location: storage)
+            checkpoints = torch.load(args.continue_from, map_location=lambda storage, location: storage, weights_only=False)
         else:
-            checkpoints = torch.load(args.continue_from, map_location={model_data['device']: args.device})
+            checkpoints = torch.load(args.continue_from, map_location={model_data['device']: args.device}, weights_only=False)
 
         start_epoch = checkpoints.get('epoch', 0)
         network.load_state_dict(checkpoints.get('model_state_dict'))
@@ -313,7 +313,7 @@ def train(args, **kwargs):
 
 
 def recon_traj_with_preds_global(dataset, preds, ind=None, seq_id=0, type='preds', **kwargs):
-    ind = ind if ind is not None else np.array([i[1] for i in dataset.index_map if i[0] == seq_id], dtype=np.int)
+    ind = ind if ind is not None else np.array([i[1] for i in dataset.index_map if i[0] == seq_id], dtype=int)
 
     if type == 'gt':
         pos = dataset.gt_pos[seq_id][:, :2]
@@ -358,9 +358,9 @@ def test(args, **kwargs):
         model_data = json.load(f)
 
     if device.type == 'cpu':
-        checkpoint = torch.load(args.model_path, map_location=lambda storage, location: storage)
+        checkpoint = torch.load(args.model_path, map_location=lambda storage, location: storage, weights_only=False)
     else:
-        checkpoint = torch.load(args.model_path, map_location={model_data['device']: args.device})
+        checkpoint = torch.load(args.model_path, map_location={model_data['device']: args.device}, weights_only=False)
 
     network = get_model(args, **kwargs)
     network.load_state_dict(checkpoint.get('model_state_dict'))
